@@ -191,7 +191,7 @@ ht_svymean(:api00,general_design)
 srs = SimpleRandomSample(apisrs, popsize = -2.8, ignorefpc = true)# the errror is wrong
 srs = SimpleRandomSample(apisrs, sampsize = -2.8, ignorefpc = true)# the function is working upto line 55
 
-# Domain stratified
+######### Domain stratified
 using Revise
 using Survey
 using DataFrames
@@ -200,18 +200,22 @@ using StatsBase
 apistrat = load_data("apistrat") # load data
 
 strat = StratifiedSample(apistrat, :stype ; popsize = apistrat.fpc )
+# user just does:
+# svyby(formula = :api00, by = , design = strat, func = svymean)
 
-gdf_strata = groupby(strat.data, strat.strata)
+gdf_strata = groupby(strat.data, strat.strata) # E H M
 Nₕ = combine(gdf_strata , :weights => sum => :Nₕ).Nₕ
 nₕ = combine(gdf_strata, nrow => :nₕ).nₕ
 
+domain = :cname # 40 cnames distrinc
 # Only need nsdh and sigma_sdh_yk
 gdf_domain = groupby(strat.data, domain)
-domain = :cname
+# Strata = stype E,M,H
 formula = :api00
 domain_means = []
 for each_domain in keys(gdf_domain)
     grouped_frame = groupby(gdf_domain[each_domain],strat.strata)
+    @show each_domain
     ############ How to get 0 as nrow of empty groupedframe
     # nsdh = combine(grouped_frame, nrow=>:nsdh).nsdh # Lol this is not always length H!! sometimes strata empty in a domain
     nsdh = combine(grouped_frame, :weights => length => :nsdh).nsdh

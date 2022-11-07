@@ -1,0 +1,20 @@
+git clone https://github.com/smishr/Survey.jl;
+cd Survey.jl;
+git branch -a;
+git checkout design_update;
+
+
+## Just once to initialise once to do package dev
+julia from terminal, go to REPL, 
+]
+dev .
+
+
+# Cant commit to git if even one error, so gotta test from REPL
+]
+test Survey
+
+
+# Config git username
+git config --global user.name "smishr";
+git config --global user.email sm.oz@outlook.com;

@@ -95,7 +95,7 @@ MSFE_df = HoltWintersMSFE(y,T₀,h,s,α,β,γ,plotting=false,return_ground_predi
 # α,β,γ = 0.4 , 0.4 , 0.4 # Reasonable default values
 
 # ╔═╡ ae08c384-15eb-4139-bc28-8bbf33213502
-init_guess = [α,β,γ]
+init_guess = [0.4 0.4 0.4]
 
 # ╔═╡ f4762b4a-d3ba-43e0-ab9f-84a33a442396
 # T₀ = Int(round(length(ausRetailTrade) / 4 )) # Initial model uses the first 25% of the data
@@ -116,13 +116,19 @@ function hw_min(parameters)
     return HoltWintersMSFE(y,T₀,h,s,α,β,γ)
 end
 
+# ╔═╡ c536417a-699d-436e-8cda-265866063965
+lower = [0.0 0.0 0.0]
+
+# ╔═╡ 0adc68f2-58d6-4f4f-bf66-0eb52c744cfd
+upper = [0.0 0.0 0.0]
+
 # ╔═╡ 72d25cd6-67ca-4581-ab27-63f0ee9636b7
-bnds = ((0, 1), (0, 1),(0, 1))
+
 
 # ╔═╡ c2dc0d9c-c55b-4a59-83e0-90033f5f3bcf
-fminsearch = optimize(hw_min, init_guess)#, bounds = bnds)
+fminsearch = optimize(hw_min, init_guess, lower,upper)#, bounds = bnds)
 
-# ╔═╡ c9bbefec-7f7f-4fe3-9d6a-975c79f632e9
+# ╔═╡ 739c1772-afee-450e-b259-80ce8df5a281
 fminsearch
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
@@ -861,8 +867,10 @@ version = "17.4.0+0"
 # ╠═9e0134c1-bb03-462b-8dba-ec816a51cc63
 # ╠═9c609e99-0c2b-4ca6-9baa-fd91aebf8101
 # ╠═018828b3-97b5-4294-aad0-e1a08a3e3b4d
+# ╠═c536417a-699d-436e-8cda-265866063965
+# ╠═0adc68f2-58d6-4f4f-bf66-0eb52c744cfd
 # ╠═72d25cd6-67ca-4581-ab27-63f0ee9636b7
 # ╠═c2dc0d9c-c55b-4a59-83e0-90033f5f3bcf
-# ╠═c9bbefec-7f7f-4fe3-9d6a-975c79f632e9
+# ╠═739c1772-afee-450e-b259-80ce8df5a281
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

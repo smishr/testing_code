@@ -228,10 +228,7 @@ for each_domain in keys(gdf_domain)
     push!(domain_means,domain_mean_estimator)
 end
 
-
 grouped_frame = groupby(gdf_domain[(cname = "Los Angeles",)],strat.strata)
-
-
 
 m_stype = gdf_strata[("M",)]
 
@@ -252,4 +249,77 @@ for (key, subdf) in pairs(groupby(strat.data, [strat.strata,domain]))
 end
 
 
+    # # each_domain = keys(gdf_domain) # THIS IS A HACK, think about it
+    # domain_means = []
+    # # for each_domain in keys(gdf_domain)
+    # grouped_frame = groupby(gdf_domain[each_domain],design.strata)
+    # stratum_sampsize = combine(grouped_frame, :sampsize => first => :stratum_sampsize ).stratum_sampsize
+    # stratum_popsize = combine(grouped_frame, :popsize => first => :stratum_popsize ).stratum_popsize
+    # @show stratum_sampsize,stratum_popsize
+    # ############ How to get 0 as nrow of empty groupedframe
+    # nsdh = combine(grouped_frame, nrow=>:nsdh).nsdh # Lol this is not always length H!! sometimes strata empty in a domain
+    # # nsdh = combine(grouped_frame, :weights => length => :nsdh).nsdh
+    # ############
+    # substrata_domain_totals = combine(grouped_frame, formula => sum => :sigma_sdh_yk).sigma_sdh_yk
+    # @show substrata_domain_totals, nsdh
 
+    # domain_mean_estimator = sum(stratum_popsize .* substrata_domain_totals ./ stratum_sampsize ) / sum(stratum_popsize .* nsdh ./ stratum_sampsize)
+    # @show domain_mean_estimator
+    # push!(domain_means,domain_mean_estimator)
+    # # end
+    # @show domain_means
+    
+    # return DataFrame(mean = domain_mean_stratified(gdf_domain,formula,by,design) ) #,
+                        # sem = sem_svyby(formula_vector, design, weights))
+"""
+    Domain mean estimator for StratifiedSample
+    Adapted from Example 10.3.3 pg 394 of Sarndal et al. Model-Assisted Survey Sampling (1992)
+"""
+function domain_mean_stratified(gdf_domain::GroupedDataFrame,formula,by,design::SimpleRandomSample)
+    # Calculate strata sampling sampsize and popsize
+    # TODO: if Nₕ and nₕ being used a lot, then add them to design object?
+    Nₕ = design.Nₕ
+    nₕ = design.nₕ
+    # x is api00 within the domain
+
+    # Only need nsdh and sigma_sdh_yk
+    each_domain = keys(gdf_domain) # THIS IS A HACK, think about it
+    domain_means = []
+    
+    # for each_domain in keys(gdf_domain)
+    grouped_frame = groupby(gdf_domain[each_domain],design.strata)
+    ############ How to get 0 as nrow of empty groupedframe
+    nsdh = combine(grouped_frame, nrow=>:nsdh).nsdh # Lol this is not always length H!! sometimes strata empty in a domain
+    # nsdh = combine(grouped_frame, :weights => length => :nsdh).nsdh
+    ############
+    # @show nsdh
+    substrata_domain_totals = combine(grouped_frame, formula => sum => :sigma_sdh_yk).sigma_sdh_yk
+    @show substrata_domain_totals, nsdh
+
+    domain_mean_estimator = sum(Nₕ .* substrata_domain_totals ./ nₕ ) / sum(Nₕ .* nsdh ./ nₕ)
+    push!(domain_means,domain_mean_estimator)
+    return domain_means
+end
+
+########## 14.11.22
+using Revise
+using Survey
+
+# SRS
+apisrs = load_data("apisrs")
+srs = SimpleRandomSample(apisrs, popsize = apisrs.fpc)
+svytotal(:api00,srs)
+ht_svytotal(:api00,srs)
+
+# Strat
+apistrat = load_data("apistrat") # load data
+strat = StratifiedSample(apistrat, :stype ; popsize = apistrat.fpc)
+strat2 = SurveyDesign(apistrat, strata = :stype , popsize = apistrat.fpc)
+svytotal(:api00,strat)
+ht_svytotal(:api00,srs)
+
+apiclus1 = load_data("apiclus1")
+SurveyDesign(apiclus1; popsize = apisrs.fpc)
+
+apiclus2 = load_data("apiclus2")
+SurveyDesign(apisrs; popsize = apisrs.fpc)

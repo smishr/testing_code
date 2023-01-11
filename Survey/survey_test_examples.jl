@@ -323,3 +323,41 @@ SurveyDesign(apiclus1; popsize = apisrs.fpc)
 
 apiclus2 = load_data("apiclus2")
 SurveyDesign(apisrs; popsize = apisrs.fpc)
+
+## 7.12.22 testing which quantile is used?
+using Statistics
+x = [i for i in range(1,100)]
+w = [10*i for i in range(1,100)]
+quantile(x)
+
+```jldoctest
+julia> apisrs = load_data("apisrs");
+
+julia> srs = SimpleRandomSample(apisrs;popsize=:fpc);
+
+julia> quantile(:enroll, srs, 0.5)
+1×1 DataFrame
+ Row │ 0.5th percentile
+     │ Float64
+─────┼──────────────────
+   1 │            453.0
+
+julia> quantile(:enroll, srs, [0.25,0.75, 0.99])
+3×1 DataFrame
+ Row │ [0.25, 0.75, 0.99]th percentile 
+     │ Float64                         
+─────┼─────────────────────────────────
+   1 │                          339.0
+   2 │                          668.5
+   3 │                         1911.39
+
+julia> strat = load_data("apistrat");
+
+julia> dstrat = StratifiedSample(strat, :stype; popsize=:fpc);
+
+julia> quantile(:enroll, dstrat, [0.1,0.2,0.5,0.75,0.95])
+
+```
+
+
+# df = DataFrame(probability = p, quantile = Statistics.quantile(v, p; alpha, beta, kwargs...))

@@ -1,0 +1,174 @@
+%%
+% Please see https://bitbucket.org/rivanvx/beamer/wiki/Home for obtaining beamer.
+%%
+\documentclass[aspectratio=169]{beamer}
+\usetheme{Boadilla}
+\usepackage{hyperref}
+\usepackage{verbatim}
+%\usepackage[style=apa, citestyle=authoryear, bibstyle=numeric, natbib=true, backend=biber]{biblatex}
+
+%%% Colours and transitions
+%%% Taken from https://paulgp.github.io/beamer_tips.pdf
+\usepackage[default]{lato}
+% These are my colors -- there are many like them, but these ones are mine. 
+\definecolor{blue}{RGB}{0,114,178}
+\definecolor{red}{RGB}{213,94,0}
+\definecolor{yellow}{RGB}{240,228,66}
+\definecolor{green}{RGB}{0,158,115}
+% I use a beige off white for my background
+%\definecolor{MyBackground}{RGB}{255,253,218}
+%% Uncomment this if you want to change the background color to something else 
+%\setbeamercolor{background canvas}{bg=MyBackground}
+%% Change the bg color to adjust your transition slide background color! 
+\newenvironment{transitionframe}{\setbeamercolor{background canvas}{bg=white}\begin{frame}}{\end{frame}}
+
+\newenvironment{wideitemize}{\itemize\addtolength{\itemsep}{10pt}}{\enditemize}
+
+\setbeamercolor{frametitle}{fg=blue} 
+\setbeamercolor{title}{fg=blue}
+\setbeamertemplate{footline}[frame number]
+\setbeamertemplate{navigation symbols}{}
+\setbeamercolor{itemize item}{fg=blue}
+\setbeamercolor{itemize subitem}{fg=blue}
+\setbeamercolor{enumerate item}{fg=blue}
+\setbeamercolor{enumerate subitem}{fg=blue}
+\setbeamercolor{button}{bg=MyBackground,fg=blue}
+%%%
+
+\title{Survey Analysis in Julia}
+\subtitle{Introduction to Survey.jl}
+\author{Shikhar Mishra}
+\institute{xKDR Forum}
+\date{22 March 2023}
+
+%% START PRES
+\begin{document}
+
+\frame{\titlepage}
+
+%\AtBeginSection[]
+%  {
+%     \begin{frame}<beamer>
+%     \frametitle{Table of Contents}
+%     \tableofcontents[currentsection]
+%     \end{frame}
+%  }
+
+\begin{transitionframe}
+       \begin{center}
+         { \Huge \textcolor{black}{Motivations}}
+  \end{center}
+\end{transitionframe}
+
+\section{Motivation}
+
+\begin{frame}{What is complex survey analysis?}
+\begin{wideitemize}
+  \item Surveys are an empirical tool for social, behavioural and experimental sciences
+  \item Goal: obtaining estimates for a population by "surveying" a well selected sample
+  \item Special techniques available for increasing \underline{precision} and \underline{representation} of the surveyed sample
+   	\begin{wideitemize}
+  		\item several types of survey "designs" and sampling schemes
+  	\end{wideitemize} 
+  	
+  \item Computing summary statistics from a survey requires  applying mathematical corrections and adjustments
+  	\begin{wideitemize}
+  		\item eg. population mean is not as simple as arithmetic mean of a numeric vector
+  	\end{wideitemize}
+  \item A "survey" package exposes an intuitive API to user, and automatically applies formulae and corrections in background
+   	\begin{wideitemize}
+  		\item In Survey.jl, for population mean of a variable you can do \verb $mean(:variable,design)$
+  	\end{wideitemize}
+\end{wideitemize}
+\end{frame}
+%  	\begin{wideitemize}
+%  		\item Benchmark for open-source complex survey analysis
+%  	\end{wideitemize}	
+%  \item R `survey` designed in early 00's for MB's of data 
+%	\begin{wideitemize}
+%  		\item slow for "large" modern datasets and many class of simulation problems
+%  		\item eg. variance estimation using bootstrapping
+%  	\end{wideitemize}
+%  \item Computation times upto few hours for summary statistics
+%  \item Testing against R
+%  \item Julia 10k sims, R 1k sims in same time or less.
+
+\begin{frame}{Our engineering journey}
+\begin{wideitemize}
+  \item Users of R `survey` package
+  	\begin{wideitemize}
+  		\item Benchmark for open-source complex survey analysis
+  	\end{wideitemize}	
+  \item R `survey` designed in early 00's for MB's of data 
+	\begin{wideitemize}
+  		\item slow for "large" modern datasets and many class of simulation problems
+  		\item eg. variance estimation using bootstrapping
+  		\item computation times upto few hours for summary statistics
+  	\end{wideitemize}
+\end{wideitemize}
+\end{frame}
+     
+\begin{frame}{Why Julia for complex survey analysis}
+	\begin{description}
+		\item[Performance]  \textbf{Verbosity} of R/Python meets \textbf{speed}  of a systems language
+		\item[Community] Several unmaterialised attempts to create survey analysis package. We received feedback and even contributing PRs on the project.\hyperlink{appendix_end}{\beamergotobutton{1}}
+		\item[Dev \& maintenace] Avoid "two-language problem". Survey researchers just want something that works great out of the box.
+		\item[Ecosystem] Julia has matured to have substantial statistical computing abilities. Survey.jl is complement to and complemented by the entire data ecosystem.
+	\end{description}
+%	\begin{verbatim}  and maintenance  + expressivity  interest Statistical e
+%			DataFrames, Makie, LinearAlgebra, Optim, Turing, Flux
+%	\end{verbatim}
+			
+\end{frame}
+
+
+\begin{frame}{Survey.jl}  
+  \begin{description}
+  \item What our package provides
+  \item ...
+  \item ... add more here
+%  \item[Weights] Sampling weights are the number of individuals in the population that each respondent in the sample is representing. 
+  \item Testing against R
+  \item Julia 10k sims, R 1k sims in same time or less.
+    \end{description}
+\end{frame}
+
+\begin{transitionframe}
+       \begin{center}
+         { \Huge \textcolor{black}{Demo}}
+  \end{center}
+\end{transitionframe}
+
+\section{Demo}
+\begin{frame}
+Getting started with Survey.jl - Tutorial part. Try to atleast add the CPHS Survey.jl code into slides. Do small demo if time/audience.
+\end{frame}
+
+
+\begin{transitionframe}
+       \begin{center}
+         { \Huge \textcolor{black}{Future Roadmap}}
+  \end{center}
+\end{transitionframe}
+
+\section{Plans}
+\begin{frame}
+	paste some from the homepage of Documentations. Give overview of future issues and PRs github.
+\end{frame}
+
+\appendix
+
+\begin{frame}[label=appendix_end]{Links}
+  \begin{wideitemize}
+  	\item Julia Discourse posts \href{https://discourse.julialang.org/t/any-package-for-survey-data-analysis/67317}{here} and \href{https://discourse.julialang.org/t/analysis-of-complex-surveys-in-julia/44011}{here}
+  	\item Unmaterialised attempts \href{https://github.com/samplics-org/survey.jl}{samplics/survey.jl} and \href{https://github.com/jamanrique/SurveyAnalysis.jl}{jamanrique/SurveyAnalysis.jl}
+%    \item[] Now you can make it clear you've done a shitload of work
+%      \begin{itemize}
+%      \item[]  without having to show everything! \hyperlink{appendix_start}{\beamergotobutton{Back}}
+%      \end{itemize}
+%    \item[] You label a frame with the \texttt{[label=name]} option, and then point a link to it
+%    \item[] You can make an object a link using the \texttt{\textbackslash hyperlink\{label\}\{object\}} command
+  \end{wideitemize}
+\end{frame}
+
+\end{document}

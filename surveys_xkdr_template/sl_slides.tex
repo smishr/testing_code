@@ -10,6 +10,8 @@
 \usemintedstyle{vs}
 \usepackage{amsmath}
 \usepackage{unicode-math}
+%\setbeamertemplate{itemize item}{\color{SpOrange}}
+%    \setbeamertemplate{itemize subitem}{\color{SpOrange}}
 %%% Below imports didnt work
 %\usepackage{newunicodechar}
 %\usepackage{jlcode}
@@ -88,7 +90,7 @@
   \item Surveys are an empirical tool for social and behavioural analysis
   \item \textbf{Goal:} obtaining estimates for a large population by surveying a well selected subset
   \item In contrast to a \textbf{census}
-  \item Special techniques available for increasing \underline{precision} and \underline{representation} of the survey
+  \item Techniques available for increasing \underline{precision} and \underline{representation} of the survey
    	\begin{itemize}
   		\item Several types of survey "designs" and sampling methods
   	\end{itemize} 
@@ -100,7 +102,7 @@
 \end{columns}
 \end{frame}
 
-\begin{frame}{Survey terminology and techniques}
+\begin{frame}{Some survey terminology}
     \begin{description}
     \item[Weighting] How many people does each respondent represent?
     \item[Strata] Subgroups of the population known a priori eg. states, districts, gender. Strata info used to improve representation
@@ -116,11 +118,14 @@
   		\item eg. population mean is not as simple as arithmetic mean of a numeric vector
 %  		\item Estimates "grouped by" a demographic variable require
   	\end{itemize}
-  	\item Point estimates (relatively) easy, variance estimation is hard
-  	\item A "survey" package exposes an intuitive API to user, and automatically applies formulae and corrections in background
-   	\begin{itemize}
-  		\item In Survey.jl, for population mean (with SE) of a variable you can do \texttt{mean(:variable,data)}
+  	\item Point estimation (relatively) easy
+  	\item Variance estimation is complex
+  	\item A "survey" package:
+  	\begin{itemize}
+  		\item exposes an intuitive API to user
+  		\item automatically applies formulae and corrections in background
   	\end{itemize}
+  	\item Eg. in Survey.jl for population mean (with SE) of a variable you can do \texttt{mean(:variable,data)}
 	\end{itemize}
 \end{frame}
 
@@ -131,7 +136,7 @@
   		\item Benchmark for open-source complex survey analysis
   		\item CMIE CPHS, Prowess, NFHS etc
   	\end{itemize}	
-  \item R `survey` designed in early 00's for MB's of data 
+  \item R `survey` designed in early 2000's for MB's of data 
 	\begin{itemize}
   		\item slow for "large" modern datasets and many class of simulation problems
   		\item eg. variance estimation using bootstrapping
@@ -144,8 +149,8 @@
 \begin{frame}{Why Julia for complex survey analysis}
 	\begin{description}
 		\item[Performance]  \textbf{Expressivity} of R/Python meets \textbf{speed}  of a systems language
-		\item[Community] Several unmaterialised attempts to create survey analysis package. We received feedback and even contributing PRs.\hyperlink{appendix_end}{\beamergotobutton{1}} 
 		\item[Development] Avoid "two-language problem". Survey researchers just want something that works great out of the box. Easy maintenance.
+		\item[Community] Several unmaterialised attempts to create survey analysis package. We received feedback and even contributing PRs.\hyperlink{appendix_end}{\beamergotobutton{1}} 
 		\item[Ecosystem] Julia has substantial statistical computing abilities, with state of the art \texttt{DataFrames, Makie, Optim, Turing, Flux, LinearAlgebra} packages. \\ \texttt{Survey} is complement to and complemented by the entire data ecosystem.
 	\end{description}			
 \end{frame}
@@ -156,11 +161,12 @@
   \begin{itemize}
   \item Summary statistics - \texttt{mean}, \texttt{total}, \texttt{ratio}, and \texttt{quantile}
   \item Subpopulations / domain estimation for subsets of sample
-  \item Variance estimation using Rao-Wu bootstrap
+  \item Variance estimation using (Rao-Wu) bootstrap
   \begin{itemize}
-    \item Using Julia, 1k MC simulations in same time that R does 50 trials.
+    \item 1000 MC simulations for variance in Julia takes similar computation time as 50 simulations in R.
   \end{itemize}
-  \item Visualisations support for weighted scatter plots, histograms and boxplots
+  \item Modularity - Can write custom replicate weighting algorithm
+  \item Visualisations support for weighted scatter plots, histograms
   \item Tested and compared against R \texttt{survey}
    \end{itemize}
 \end{frame}
@@ -229,7 +235,7 @@ replicates: 500
 \begin{frame}[fragile]{Demo workflow with CPHS}
 \framesubtitle{Calculate summary statistics}
 \begin{minted}[breaklines,escapeinside=||,mathescape=true, numbersep=3pt, frame=lines, fontsize=\scriptsize, framesep=2mm]{julia}
-# Mean income
+# Mean income (overall India)
 julia> mean(:TOTAL_INCOME, CPHS_income_bootstrap) 
 1×2 DataFrame
  Row │ mean     SE      
@@ -237,19 +243,19 @@ julia> mean(:TOTAL_INCOME, CPHS_income_bootstrap)
 ─────┼──────────────────
    1 │ 23870.2  81.8377
 
-# Mean income by strata (Subpopulation estimation)
-julia> mean(:TOTAL_INCOME, :HR, CPHS_income_bootstrap)
+# Total income by homogenous regions (Subpopulation estimation)
+julia> total(:TOTAL_INCOME, :HR, CPHS_income_bootstrap)
 102×3 DataFrame
- Row │ HR       mean     SE       
-     │ String   Float64  Float64  
-─────────────────────────────────
-   1 │ HR 1     33040.2   574.598
-   2 │ HR 2     28362.1   827.503
-   3 │ HR 3     19109.1   595.618
-  ...│  ...       ...       ...
- 101 │ HR 95    15571.7   490.704
- 102 │ HR 97    12804.6   249.971
-                   96 rows omitted
+ Row │ HR       total       SE        
+     │ String   Float64     Float64   
+─────┼────────────────────────────────
+   1 │ HR 1     3.95686e10  6.88132e8
+   2 │ HR 2     6.72443e9   1.96195e8
+   3 │ HR 3     1.93887e10  6.04332e8
+  ⋮  │    ⋮         ⋮           ⋮
+ 101 │ HR 95    1.4761e10   4.65155e8
+ 102 │ HR 97    1.83399e10  3.58032e8
+                       93 rows omitted
 \end{minted}
 \end{frame}
 
@@ -262,7 +268,7 @@ julia> mean(:TOTAL_INCOME, :HR, CPHS_income_bootstrap)
 %\end{frame}
 
 
-\begin{frame}{Future Plans}
+\begin{frame}{Plans}
 	Efficient implementations of all the methods in R `survey`. Features for future releases will include:
 	\begin{itemize}
 		\item Proportion and count estimation
@@ -277,29 +283,55 @@ julia> mean(:TOTAL_INCOME, :HR, CPHS_income_bootstrap)
 	\end{itemize}
 \end{frame}
 
+\begin{frame}{Credits}
+	We gratefully acknowledge the \href{https://julia.mit.edu}{JuliaLab} at MIT for financial support for this project. \\ \\
+	\textbf{Contributors:} \\
+	\begin{itemize}
+	\item \href{https://github.com/ayushpatnaikgit}{Ayush Patnaik}, XKDR and U Sydney
+	\item \href{https://github.com/smishr}{Shikhar Mishra} XKDR and ANU
+	\item \href{https://github.com/iuliadmtru}{Iulia Dmitru}, GSoc and XKDR, U Bucharest, Romania
+	\item \href{https://github.com/codetalker7}{Siddhant Chaudhary}, Chennai Maths Institute (CMI)
+	\item \href{https://github.com/sayantikaSSG}{Sayantika Sengupta}, CMI
+	\item \href{https://github.com/nadiaenh}{Nadia Enhaili}, UBC Vancouver
+	\item \href{https://github.com/greimel}{Fabian Greimel} Asso Prof of Economics, U Amsterdam
+	\end{itemize}
+\end{frame}
+
+%\begin{frame}{Credits}
+%	We gratefully acknowledge the JuliaLab at MIT for financial support for this project.
+%\end{frame}
 
 \appendix
 
-\begin{frame}[label=appendix_end]{Appendix}
+\begin{frame}[label=appendix_end]{References}
   \begin{itemize}
+  	\item \href{https://www.amazon.com/Assisted-Survey-Sampling-Springer-Statistics/dp/0387406204}{Model Assisted Survey Sampling} (1992)
+  	\item \href{https://www.routledge.com/Sampling-Design-and-Analysis/Lohr/p/book/9780367279509}{Sampling: Design and Analysis}, Sharon Lohr, (2010)	
+  	\item \href{https://journals.sagepub.com/doi/10.1177/096228029600500305}{JNK Variance Estimation Literature Review}
+
+  	\item R survey package \href{https://r-survey.r-forge.r-project.org/survey/}{documentation}  	
   	\item Julia Discourse posts \href{https://discourse.julialang.org/t/any-package-for-survey-data-analysis/67317}{here} and \href{https://discourse.julialang.org/t/analysis-of-complex-surveys-in-julia/44011}{here}
   	\item Unmaterialised attempts \href{https://github.com/samplics-org/survey.jl}{samplics/survey.jl} and \href{https://github.com/jamanrique/SurveyAnalysis.jl}{jamanrique/SurveyAnalysis.jl}
+\end{itemize}
+\end{frame}
+
+\end{document}
+
+%  	\item SAS Survey PROCS \href{https://support.sas.com/rnd/app/stat/procedures/SurveyAnalysis.html#surveymeans}{documentation}
+
 %    \item[] Now you can make it clear you've done a shitload of work
 %      \begin{itemize}
 %      \item[]  without having to show everything! \hyperlink{appendix_start}{\beamergotobutton{Back}}
 %      \end{itemize}
 %    \item[] You label a frame with the \texttt{[label=name]} option, and then point a link to it
 %    \item[] You can make an object a link using the \texttt{\textbackslash hyperlink\{label\}\{object\}} command
-  \end{itemize}
-\end{frame}
 
-\begin{frame}
-  \hfill {\LARGE Thank you}.
 
-  \vfill
-  \vfill
-
-  \hfill \url{https://xkdr.org}
-\end{frame}
-
-\end{document}
+%\begin{frame}
+%  \hfill {\LARGE Thank you}.
+%
+%  \vfill
+%  \vfill
+%
+%  \hfill \url{https://xkdr.org}
+%\end{frame}
